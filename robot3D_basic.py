@@ -103,7 +103,24 @@ def getLocalFrameMatrix(R_ij, t_ij):
 										 [np.zeros((1, 3)),       1]])
 		
 		return T_ij
-	
+
+def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
+	"""Calculate	the	local-to-global	frame	matrices,	
+	and	the	location	of	the	end-effector.
+					
+	Args:
+					Phi	(4x1	nd.array):							Array	containing	the	four	joint	angles
+					L1,	L2,	L3,	L4	(float):			lengths	of	the	parts	of	the	robot	arm.	
+																													e.g.,	Phi	=	np.array([0,	-10,	20,	0])
+	Returns:
+					T_01,	T_02,	T_03,	T_04:			4x4	nd.arrays	of	local-to-global	matrices for	each	frame.
+					e: 3x1	nd.array	of	3-D	coordinates, the location	of	the	end-effector	in	space.
+	"""
+
+
+	#	Function	implementation	goes	here
+				
+	return T_01,	T_02,	T_03,	T_04,	e
 
 def main():
 	# Frame1 is yellow arm
@@ -116,11 +133,13 @@ def main():
 	# Lengths of arm parts 
 	L1 = 5   # Length of link 1
 	L2 = 8   # Length of link 2
+	L3 = 6	 # Length of link 3
 
 	# Joint angles 
 	phi1 = 30     # Rotation angle of part 1 in degrees (red)
 	phi2 = -10    # Rotation angle of part 2 in degrees (yellow)
-	phi3 = 0      # Rotation angle of the end-effector in degrees
+	phi3 = 45      # Rotation angle of the end-effector in degrees
+	phi4 = 45
 	
 	# Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
 	R_01 = RotationMatrix(phi1, axis_name = 'z')   # Rotation matrix
@@ -198,8 +217,37 @@ def main():
 	# Transform the part to position it at its correct location and orientation 
 	Frame3.apply_transform(T_03)  
 
+	# Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
+	R_04 = RotationMatrix(phi4, axis_name = 'z')   # Rotation matrix
+	p4   = np.array([[L2],[L3], [0.0]])              # Frame's origin (w.r.t. previous frame)
+	t_04 = p4                                      # Translation vector
+	
+	T_04 = getLocalFrameMatrix(R_04, t_04)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
+	
+	# Create the coordinate frame mesh and transform
+	Frame4Arrows = createCoordinateFrameMesh()
+	
+	# Now, let's create a cylinder and add it to the local coordinate frame
+	link4_mesh = Cylinder(r=0.4, 
+												height=L3, 
+												pos = (L3/2,0,0),
+												c="blue", 
+												alpha=.8, 
+												axis=(1,0,0)
+												)
+	
+	# Also create a sphere to show as an example of a joint
+	r4 = 0.4
+	sphere4 = Sphere(r=r4).pos(-r4,0,0).color("gray").alpha(.8)
+
+	# Combine all parts into a single object 
+	Frame4 = Frame4Arrows + link4_mesh + sphere4
+
+	# Transform the part to position it at its correct location and orientation 
+	Frame4.apply_transform(T_04)  
+
 	# Show everything 
-	show([Frame1, Frame2, Frame3], axes, viewup="z").close()
+	show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()
 
 if __name__ == '__main__':
 		main()
