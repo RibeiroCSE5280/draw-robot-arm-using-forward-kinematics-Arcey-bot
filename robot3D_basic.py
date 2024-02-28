@@ -5,107 +5,110 @@
 from vedo import *
 
 def RotationMatrix(theta, axis_name):
-    """ calculate single rotation of $theta$ matrix around x,y or z
-        code from: https://programming-surgeon.com/en/euler-angle-python-en/
-    input
-        theta = rotation angle(degrees)
-        axis_name = 'x', 'y' or 'z'
-    output
-        3x3 rotation matrix
-    """
+		""" calculate single rotation of $theta$ matrix around x,y or z
+				code from: https://programming-surgeon.com/en/euler-angle-python-en/
+		input
+				theta = rotation angle(degrees)
+				axis_name = 'x', 'y' or 'z'
+		output
+				3x3 rotation matrix
+		"""
 
-    c = np.cos(theta * np.pi / 180)
-    s = np.sin(theta * np.pi / 180)
+		c = np.cos(theta * np.pi / 180)
+		s = np.sin(theta * np.pi / 180)
 	
-    if axis_name =='x':
-        rotation_matrix = np.array([[1, 0,  0],
-                                    [0, c, -s],
-                                    [0, s,  c]])
-    if axis_name =='y':
-        rotation_matrix = np.array([[ c,  0, s],
-                                    [ 0,  1, 0],
-                                    [-s,  0, c]])
-    elif axis_name =='z':
-        rotation_matrix = np.array([[c, -s, 0],
-                                    [s,  c, 0],
-                                    [0,  0, 1]])
-    return rotation_matrix
+		if axis_name =='x':
+				rotation_matrix = np.array([[1, 0,  0],
+																		[0, c, -s],
+																		[0, s,  c]])
+		if axis_name =='y':
+				rotation_matrix = np.array([[ c,  0, s],
+																		[ 0,  1, 0],
+																		[-s,  0, c]])
+		elif axis_name =='z':
+				rotation_matrix = np.array([[c, -s, 0],
+																		[s,  c, 0],
+																		[0,  0, 1]])
+		return rotation_matrix
 
 
 def createCoordinateFrameMesh():
-    """Returns the mesh representing a coordinate frame
-    Args:
-      No input args
-    Returns:
-      F: vedo.mesh object (arrows for axis)
-      
-    """         
-    _shaft_radius = 0.05
-    _head_radius = 0.10
-    _alpha = 1
-    
-    
-    # x-axis as an arrow  
-    x_axisArrow = Arrow(start_pt=(0, 0, 0),
-                        end_pt=(1, 0, 0),
-                        s=None,
-                        shaft_radius=_shaft_radius,
-                        head_radius=_head_radius,
-                        head_length=None,
-                        res=12,
-                        c='red',
-                        alpha=_alpha)
+		"""Returns the mesh representing a coordinate frame
+		Args:
+			No input args
+		Returns:
+			F: vedo.mesh object (arrows for axis)
+			
+		"""         
+		_shaft_radius = 0.05
+		_head_radius = 0.10
+		_alpha = 1
+		
+		
+		# x-axis as an arrow  
+		x_axisArrow = Arrow(start_pt=(0, 0, 0),
+												end_pt=(1, 0, 0),
+												s=None,
+												shaft_radius=_shaft_radius,
+												head_radius=_head_radius,
+												head_length=None,
+												res=12,
+												c='red',
+												alpha=_alpha)
 
-    # y-axis as an arrow  
-    y_axisArrow = Arrow(start_pt=(0, 0, 0),
-                        end_pt=(0, 1, 0),
-                        s=None,
-                        shaft_radius=_shaft_radius,
-                        head_radius=_head_radius,
-                        head_length=None,
-                        res=12,
-                        c='green',
-                        alpha=_alpha)
+		# y-axis as an arrow  
+		y_axisArrow = Arrow(start_pt=(0, 0, 0),
+												end_pt=(0, 1, 0),
+												s=None,
+												shaft_radius=_shaft_radius,
+												head_radius=_head_radius,
+												head_length=None,
+												res=12,
+												c='green',
+												alpha=_alpha)
 
-    # z-axis as an arrow  
-    z_axisArrow = Arrow(start_pt=(0, 0, 0),
-                        end_pt=(0, 0, 1),
-                        s=None,
-                        shaft_radius=_shaft_radius,
-                        head_radius=_head_radius,
-                        head_length=None,
-                        res=12,
-                        c='blue',
-                        alpha=_alpha)
-    
-    originDot = Sphere(pos=[0,0,0], 
-                       c="black", 
-                       r=0.10)
+		# z-axis as an arrow  
+		z_axisArrow = Arrow(start_pt=(0, 0, 0),
+												end_pt=(0, 0, 1),
+												s=None,
+												shaft_radius=_shaft_radius,
+												head_radius=_head_radius,
+												head_length=None,
+												res=12,
+												c='blue',
+												alpha=_alpha)
+		
+		originDot = Sphere(pos=[0,0,0], 
+											 c="black", 
+											 r=0.10)
 
 
-    # Combine the axes together to form a frame as a single mesh object 
-    F = x_axisArrow + y_axisArrow + z_axisArrow + originDot
-        
-    return F
+		# Combine the axes together to form a frame as a single mesh object 
+		F = x_axisArrow + y_axisArrow + z_axisArrow + originDot
+				
+		return F
 
 
 def getLocalFrameMatrix(R_ij, t_ij): 
-    """Returns the matrix representing the local frame
-    Args:
-      R_ij: rotation of Frame j w.r.t. Frame i 
-      t_ij: translation of Frame j w.r.t. Frame i 
-    Returns:
-      T_ij: Matrix of Frame j w.r.t. Frame i. 
-      
-    """             
-    # Rigid-body transformation [ R t ]
-    T_ij = np.block([[R_ij,                t_ij],
-                     [np.zeros((1, 3)),       1]])
-    
-    return T_ij
+		"""Returns the matrix representing the local frame
+		Args:
+			R_ij: rotation of Frame j w.r.t. Frame i 
+			t_ij: translation of Frame j w.r.t. Frame i 
+		Returns:
+			T_ij: Matrix of Frame j w.r.t. Frame i. 
+			
+		"""             
+		# Rigid-body transformation [ R t ]
+		T_ij = np.block([[R_ij,                t_ij],
+										 [np.zeros((1, 3)),       1]])
+		
+		return T_ij
 	
 
 def main():
+	# Frame1 is yellow arm
+	# Frame2 is red arm
+	# Frame3 is the the 3d axis arrows
 
 	# Set the limits of the graph x, y, and z ranges 
 	axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
@@ -115,8 +118,8 @@ def main():
 	L2 = 8   # Length of link 2
 
 	# Joint angles 
-	phi1 = 30     # Rotation angle of part 1 in degrees
-	phi2 = -10    # Rotation angle of part 2 in degrees
+	phi1 = 30     # Rotation angle of part 1 in degrees (red)
+	phi2 = -10    # Rotation angle of part 2 in degrees (yellow)
 	phi3 = 0      # Rotation angle of the end-effector in degrees
 	
 	# Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
@@ -131,12 +134,12 @@ def main():
 	
 	# Now, let's create a cylinder and add it to the local coordinate frame
 	link1_mesh = Cylinder(r=0.4, 
-	                      height=L1, 
-	                      pos = (L1/2,0,0),
-	                      c="yellow", 
-	                      alpha=.8, 
-	                      axis=(1,0,0)
-	                      )
+												height=L1, 
+												pos = (L1/2,0,0),
+												c="yellow", 
+												alpha=.8, 
+												axis=(1,0,0)
+												)
 	
 	# Also create a sphere to show as an example of a joint
 	r1 = 0.4
@@ -147,12 +150,6 @@ def main():
 
 	# Transform the part to position it at its correct location and orientation 
 	Frame1.apply_transform(T_01)  
-	
-
-
-
-
-
 	
 	# Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame) 	
 	R_12 = RotationMatrix(phi2, axis_name = 'z')   # Rotation matrix
@@ -170,22 +167,18 @@ def main():
 	
 	# Now, let's create a cylinder and add it to the local coordinate frame
 	link2_mesh = Cylinder(r=0.4, 
-	                      height=L2, 
-	                      pos = (L2/2,0,0),
-	                      c="red", 
-	                      alpha=.8, 
-	                      axis=(1,0,0)
-	                      )
+												height=L2, 
+												pos = (L2/2,0,0),
+												c="red", 
+												alpha=.8, 
+												axis=(1,0,0)
+												)
 	
 	# Combine all parts into a single object 
 	Frame2 = Frame2Arrows + link2_mesh
 	
 	# Transform the part to position it at its correct location and orientation 
 	Frame2.apply_transform(T_02)  
-	
-	
-
-	
 	
 	# Matrix of Frame 3 (written w.r.t. Frame 2, which is the previous frame) 	
 	R_23 = RotationMatrix(phi3, axis_name = 'z')   # Rotation matrix
@@ -207,12 +200,9 @@ def main():
 
 	# Show everything 
 	show([Frame1, Frame2, Frame3], axes, viewup="z").close()
-	
-
-
 
 if __name__ == '__main__':
-    main()
+		main()
 
 
 
