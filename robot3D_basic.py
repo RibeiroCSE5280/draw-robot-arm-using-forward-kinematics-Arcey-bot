@@ -116,17 +116,54 @@ def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
 					T_01,	T_02,	T_03,	T_04:			4x4	nd.arrays	of	local-to-global	matrices for	each	frame.
 					e: 3x1	nd.array	of	3-D	coordinates, the location	of	the	end-effector	in	space.
 	"""
+	frames = []
+	local_frames = []
+	colors = ['red', 'yellow', 'blue', 'green']
+	lengths = [L1, L2, L3, L4]
 
+	for i, l in enumerate(lengths):
+		print(f'Frame {i} - {l=}')
+		rot = RotationMatrix(Phi[i], axis_name = 'z')   # Rotation matrix
+		trans = np.array([[0.0] if i == 0 else [lengths[i-1]],[0.0], [0.0]]) # Frame's origin (w.r.t. previous frame)    
+		print(f'{rot=}')                                 # Translation vector
+		print(f'{trans=}')                                 # Translation vector
+		
+		T = getLocalFrameMatrix(rot, trans)
 
-	#	Function	implementation	goes	here
-				
+		if i > 0: # previous frames to transform with respect to
+			for j in local_frames[:i]: # get previous frames up to current exclusive
+				T @= j 
+
+		local_frames.append(T)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
+		print(f"{T=}")
+		# Create the coordinate frame mesh and transform
+		FrameArrows = createCoordinateFrameMesh()
+		
+		# Now, let's create a cylinder and add it to the local coordinate frame
+		link_mesh = Cylinder(r=0.4, 
+													height=l, 
+													pos = (l/2,0,0),
+													c=colors[i], 
+													alpha=.8, 
+													axis=(1,0,0)
+													)
+		
+		# Also create a sphere to show as an example of a joint
+		r = 0.4
+		sphere = Sphere(r=r).pos(-r,0,0).color("gray").alpha(.8)
+
+		# Combine all parts into a single object 
+		Frame = FrameArrows + link_mesh + sphere
+
+		# Transform the part to position it at its correct location and orientation 
+		Frame.apply_transform(T)  
+		frames.append(Frame)
+		
+	T_01, T_02, T_03, T_04 = frames
+	e = np.array([0, 0, 0])
 	return T_01,	T_02,	T_03,	T_04,	e
 
 def main():
-	# Frame1 is yellow arm
-	# Frame2 is red arm
-	# Frame3 is the the 3d axis arrows
-
 	# Set the limits of the graph x, y, and z ranges 
 	axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
 
@@ -217,40 +254,24 @@ def main():
 	# Transform the part to position it at its correct location and orientation 
 	Frame3.apply_transform(T_03)  
 
-	# Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
-	R_04 = RotationMatrix(phi4, axis_name = 'z')   # Rotation matrix
-	p4   = np.array([[L2],[L3], [0.0]])              # Frame's origin (w.r.t. previous frame)
-	t_04 = p4                                      # Translation vector
-	
-	T_04 = getLocalFrameMatrix(R_04, t_04)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
-	
-	# Create the coordinate frame mesh and transform
-	Frame4Arrows = createCoordinateFrameMesh()
-	
-	# Now, let's create a cylinder and add it to the local coordinate frame
-	link4_mesh = Cylinder(r=0.4, 
-												height=L3, 
-												pos = (L3/2,0,0),
-												c="blue", 
-												alpha=.8, 
-												axis=(1,0,0)
-												)
-	
-	# Also create a sphere to show as an example of a joint
-	r4 = 0.4
-	sphere4 = Sphere(r=r4).pos(-r4,0,0).color("gray").alpha(.8)
-
-	# Combine all parts into a single object 
-	Frame4 = Frame4Arrows + link4_mesh + sphere4
-
-	# Transform the part to position it at its correct location and orientation 
-	Frame4.apply_transform(T_04)  
-
 	# Show everything 
-	show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()
+	show([Frame1, Frame2, Frame3], axes, viewup="z").close()
 
 if __name__ == '__main__':
-		main()
+		# main()
+		T_01,	T_02,	T_03,	T_04,	e = forward_kinematics(
+			np.array([10, 0, 0, 0]),
+			5,
+			5,
+			5,
+			5,
+		)
+		print(f"{T_01=}")
+		print(f"{T_02=}")
+		print(f"{T_03=}")
+		print(f"{T_04=}")
+		print(f"{e=}")
 
-
+		axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
+		show([T_01,	T_02,	T_03,	T_04], axes, viewup="z").close()
 
