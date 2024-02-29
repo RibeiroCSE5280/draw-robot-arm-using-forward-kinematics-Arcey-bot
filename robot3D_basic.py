@@ -124,7 +124,10 @@ def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
 	for i, l in enumerate(lengths):
 		print(f'Frame {i} - {l=}')
 		rot = RotationMatrix(Phi[i], axis_name = 'z')   # Rotation matrix
-		trans = np.array([[0.0] if i == 0 else [lengths[i-1]],[0.0], [0.0]]) # Frame's origin (w.r.t. previous frame)    
+		if i == 0: # special reference for frame 0,1
+			trans = np.array([[3], [2], [0.0]]) # Frame's origin (w.r.t. previous frame)    
+		else:
+			trans = np.array([[lengths[i-1]],[0.0], [0.0]])
 		print(f'{rot=}')                                 # Translation vector
 		print(f'{trans=}')                                 # Translation vector
 		
@@ -260,11 +263,11 @@ def main():
 if __name__ == '__main__':
 		# main()
 		T_01,	T_02,	T_03,	T_04,	e = forward_kinematics(
-			np.array([10, 0, 0, 0]),
+			np.array([-30, 50, 30, 0]),
 			5,
-			5,
-			5,
-			5,
+			8,
+			3,
+			0,
 		)
 		print(f"{T_01=}")
 		print(f"{T_02=}")
