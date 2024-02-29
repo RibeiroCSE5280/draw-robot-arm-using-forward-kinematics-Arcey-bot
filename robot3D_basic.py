@@ -144,7 +144,7 @@ def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
 	for i, v in enumerate([L2, L3, L4], 1):
 		rot = RotationMatrix(Phi[i], axis_name= 'z') # rot for frame N w.r.t N-1
 		# T_(N-1)N
-		trans = getLocalFrameMatrix(rot, np.array([[lengths[i-1]+0.2], [0.0], [0.0]]))
+		trans = getLocalFrameMatrix(rot, np.array([[lengths[i-1]+0.4], [0.0], [0.0]]))
 				
 		T = T_0N @ trans
 		T_0N = T # update for future calcuations
@@ -157,17 +157,17 @@ def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
 												alpha=.8, 
 												axis=(1,0,0)
 												)
-		sphere = Sphere(r=0.4).pos(0,0,0).color("gray").alpha(.8)
+		sphere = Sphere(r=0.4).pos(-0.0,0.0,0).color("gray").alpha(.8)
 		Frame = FrameArrows + link_mesh
 
 		if i != len(lengths) - 1: # dont add joint to end
 			Frame += sphere
-			
+
 		Frame.apply_transform(T)
 		frames.append(Frame)
 		
 	T_01, T_02, T_03, T_04 = frames
-	e = np.array([0, 0, 0])
+	e = np.array(frames[-1].GetPosition())
 	return T_01,	T_02,	T_03,	T_04,	e
 
 def main():
@@ -304,10 +304,10 @@ if __name__ == '__main__':
 			3,
 			0,
 		)
-		print(f"{T_01=}")
-		print(f"{T_02=}")
-		print(f"{T_03=}")
-		print(f"{T_04=}")
+		print(f"{T_01.GetPosition()=}")
+		print(f"{T_02.GetPosition()=}")
+		print(f"{T_03.GetPosition()=}")
+		print(f"{T_04.GetPosition()=}")
 		print(f"{e=}")
 
 		axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
