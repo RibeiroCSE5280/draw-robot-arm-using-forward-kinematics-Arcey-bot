@@ -127,7 +127,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-
-# Solution to assignment
-robot3D_basic_solution.py
