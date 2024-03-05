@@ -144,7 +144,7 @@ def forward_kinematics(Phi,	L1,	L2,	L3,	L4):
 	for i, v in enumerate([L2, L3, L4], 1):
 		rot = RotationMatrix(Phi[i], axis_name= 'z') # rot for frame N w.r.t N-1
 		# T_(N-1)N
-		trans = getLocalFrameMatrix(rot, np.array([[lengths[i-1]+0.4], [0.0], [0.0]]))
+		trans = getLocalFrameMatrix(rot, np.array([[lengths[i-1]+0.45], [0.0], [0.0]]))
 				
 		T = T_0N @ trans
 		T_0N = T # update for future calcuations
